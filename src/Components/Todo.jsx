@@ -3,6 +3,8 @@ import TodoList from './TodoList'
 
 const Todo = () => {
   const [todos, setTodos] = useState(localStorage.getItem("todo") ? JSON.parse(localStorage.getItem("todo")) : [])
+
+  const [filter, setFilter] = useState("all")
   const inputRef = useRef()
 
   useEffect(() => {
@@ -35,15 +37,20 @@ const Todo = () => {
       })
     })
   }
-  
+
   const deleteList = (id) => {
     setTodos((prev) => {
       return prev.filter((todo) => todo.id != id)
     })
   }
+  const filteredList = todos.filter((todo) => {
+    if (filter === "completed") return todo.isCompleted;
+    if (filter === "pending") return !todo.isCompleted;
+    return true;
+  })
   return (
     <>
-      <div className='w-[30-rem]'>
+      <div className='w-full max-w-[30rem] mx-auto'>
         <h1 className='text-lg my-2 font-medium text-amber-500'>To-Do List</h1>
 
         <div className='flex gap-2'>
@@ -56,14 +63,36 @@ const Todo = () => {
         </div>
         <p className='text-sm text-zinc-500 my-3 px-1'>Fill Task Details</p>
       </div>
-      <div className='w-[30-rem] bg-white py-6 px-4 rounded-lg'>
+      <div className='w-full max-w-[25rem] my-3 flex gap-2 mx-auto px-0'>
+        <button
+          className={`px-3 py-1 rounded ${filter === "all" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+          onClick={() => setFilter("all")}
+        >
+          All
+        </button>
+
+        <button
+          className={`px-3 py-1 rounded ${filter === "completed" ? "bg-green-500 text-white" : "bg-gray-200"}`}
+          onClick={() => setFilter("completed")}
+        >
+          Completed
+        </button>
+
+        <button
+          className={`px-3 py-1 rounded ${filter === "pending" ? "bg-yellow-500 text-white" : "bg-gray-200"}`}
+          onClick={() => setFilter("pending")}
+        >
+          Pending
+        </button>
+      </div>
+      <div className='w-full max-w-[30rem] bg-white py-6 px-4 rounded-lg mx-auto'>
         <fieldset className='space-y-3'>
           <legend className='text-pink-500 font-medium'>List Of Task</legend>
 
-          {todos.length === 0 ? (
+          {filteredList.length === 0 ? (
             <p className='text-sm text-gray-500'>No Task found</p>
           ) : (
-            todos.map((todo, index) => {
+            filteredList.map((todo, index) => {
               return <TodoList text={todo.text} key={index} isCompleted={todo.isCompleted} id={todo.id} update={updateList} deleteList={deleteList} />
             })
           )
